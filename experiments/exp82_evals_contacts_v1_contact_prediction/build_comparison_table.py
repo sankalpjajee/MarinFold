@@ -155,13 +155,20 @@ def main() -> int:
     combined.to_csv(args.out, index=False)
     print(f"wrote {len(combined)} rows ({len(new)} new) -> {args.out}")
 
-    agg = (combined.groupby(["model", "predictor", "range", "cut"])["precision"]
-           .mean().reset_index().rename(columns={"precision": "mean_precision"}))
+    # Group on `mode` too: protenix-v2 is present as both single_seq and msa,
+    # and averaging them together reports a blended number that corresponds to
+    # no real system (it simultaneously overstates the MSA-free baseline and
+    # understates the MSA one). Every other model is single_seq-only, so this
+    # only splits the protenix rows. `n` makes any future collapse visible.
+    agg = (combined.groupby(["model", "mode", "predictor", "range", "cut"])["precision"]
+           .agg(["mean", "count"]).reset_index()
+           .rename(columns={"mean": "mean_precision", "count": "n"}))
     args.summary.parent.mkdir(parents=True, exist_ok=True)
     agg.to_csv(args.summary, index=False)
     print(f"wrote per-model summary -> {args.summary}")
     print(agg[(agg.range == "long") & (agg.cut.isin(["R", "L", "AUC"]))]
-          .pivot_table(index="model", columns="cut", values="mean_precision").round(3))
+          .pivot_table(index=["model", "mode", "predictor"], columns="cut",
+                       values="mean_precision").round(3))
     return 0
 
 

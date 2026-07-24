@@ -10,17 +10,25 @@ acids, but per the decisions below those are realized as the
 contacts-and-distances-v1 tokens `<p22>` / `<begin_sequence>` /
 `<begin_statements>` and uppercase `<ALA>` …)
 
+(Eight residues, so the contacts respect the `min_seq_separation = 6` minimum
+below — a three-residue example could not carry a legal contact at all.)
+
 ```
 <contacts-v1>
 <begin_sequence>
-<p22> <PHE>
+<p23> <PHE>
 <n-term> <p20>
+<p26> <LYS>
+<p25> <THR>
+<p27> <VAL>
 <p21> <ALA>
-<c-term> <p22>
-<p20> <ALA>
+<p22> <GLY>
+<c-term> <p27>
+<p20> <MET>
+<p24> <SER>
 <begin_statements>
-<contact> <p20> <p21>
-<contact> <p22> <p21>
+<contact> <p21> <p27>
+<contact> <p20> <p26>
 <end>
 ```
 
@@ -274,10 +282,15 @@ into the contacts-v1 token space, so the two corpora can be trained
 together under one tokenizer.
 
 - **Document shape.** `<contacts-v1.sequence_only> <begin_sequence> …
-  sequence statements … <end>`. The sequence section is **byte-identical**
-  to what `<contacts-v1>` emits for the same `entry_id` + residues: same
-  random wrap-around start index, same `<n-term>`/`<c-term>` markers, same
-  shuffled `<pX> <AA>` statements (pinned by `tests/.../test_sequence_only.py`).
+  sequence statements … <end>`. Under the default `think=False`, the sequence
+  section is **byte-identical** to what `<contacts-v1>` emits for the same
+  `entry_id` + residues: same random wrap-around start index, same
+  `<n-term>`/`<c-term>` markers, same shuffled `<pX> <AA>` statements (pinned
+  by `tests/.../test_sequence_only.py`). The guarantee is scoped to that
+  default: `think=True` draws the think-overhead sample *before* the start
+  index (see *Determinism*), which shifts the RNG stream, so a `think=True`
+  contacts-v1 document has a different sequence section. Think is inert on the
+  sequence-only path itself, so its own output is unaffected either way.
   Only the leading doc-type token and the absence of the `<begin_statements>`
   structure section differ; the frame is 3 tokens (not 4).
 - **Token.** `<contacts-v1.sequence_only>` is minted by contacts-v1 but is

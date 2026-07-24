@@ -103,8 +103,13 @@ def main() -> int:
         model_path = str(local)
 
     tok_probe = LLM  # noqa: F841 (keep import obvious)
+    # Pin the dtype: vLLM's default dtype="auto" follows the checkpoint config
+    # and can resolve to float16, so an unpinned run would compare against the
+    # transformers Scorer (bfloat16) across a precision change as well as a
+    # backend change. bfloat16 matches every other entry point in the repo.
     llm = LLM(model=model_path, max_model_len=args.max_model_len,
               tensor_parallel_size=args.tensor_parallel_size,
+              dtype="bfloat16",
               enforce_eager=True, max_logprobs=2845)
     tok = llm.get_tokenizer()
     contact_id = tok.convert_tokens_to_ids("<contact>")

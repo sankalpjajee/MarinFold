@@ -191,8 +191,10 @@ no retraining, no ground truth.
 Run on **iris** — vLLM on **6× v5p-8** (us-east5-a), generation-logprobs,
 `bf16` ([`ensemble_worker_vllm_tpu.py`](ensemble_worker_vllm_tpu.py),
 [`gen_ensemble_prompts.py`](gen_ensemble_prompts.py)). The bf16/TPU
-single-realization matches the local fp32/transformers numbers within ≤ 0.006
+single-realization matches the local bf16/transformers numbers within ≤ 0.006
 (AUC-long 0.879 vs 0.881; R-long 0.263 vs 0.269), so the backend is faithful.
+(Both runs are bf16 — `score_eval_set.py` uses the `Scorer` default — so this
+is a backend check, not a precision check.)
 **K=10 ensemble vs single, same backend, n=554:**
 
 | long-range | single | **K=10 ensemble** | Δ |

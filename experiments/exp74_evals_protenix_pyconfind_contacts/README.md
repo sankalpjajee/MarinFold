@@ -104,7 +104,8 @@ the GT structure**, identically across all four configs, so the numbers are
 comparable.
 
 > **Note on the metric.** pyconfind contacts are sparser than the CB-CB ≤ 8 Å
-> contacts of classic CASP precision@L (≈0.6/residue here), so precision@L is
+> contacts of classic CASP precision@L (≈0.85/residue here — mean `n_true/L`
+> over the 554 proteins; 0.90 on FoldBench-100), so precision@L is
 > bounded by contact density for short proteins (a perfect predictor caps at
 > `n_true/L`); L/2, L/5, and especially **R-precision** (ceiling 1.0 for every
 > protein) sidestep this. Also, the **distogram** configs
@@ -232,7 +233,7 @@ the CB-CB-distance vs side-chain-contact representation gap, not
 necessarily worse prediction.
 
 Caveats: precision @ L is bounded by pyconfind's contact density
-(≈0.6 contacts/residue), so it understates short-range performance —
+(≈0.85 contacts/residue), so it understates short-range performance —
 **R-precision** is the cleaner read (the model is flat at ~0.84 across
 short/medium/long for FoldBench structure·MSA, vs 0.12/0.16/0.55 at
 precision@L). The 8 Å distogram threshold is a default and can be swept
